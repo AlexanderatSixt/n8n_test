@@ -2,88 +2,464 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quick Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>Budget Log</title>
+
   <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
-      background: #0f172a;
-      color: #e5e7eb;
+    :root{
+      --bg: #070a14;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --line: rgba(255,255,255,.12);
+      --accent: #7c3aed;   /* purple */
+      --accent2: #22c55e;  /* green */
+      --danger: #ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --radius: 22px;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
       margin: 0;
-      padding: 24px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1200px 800px at 80% -10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(1000px 700px at 10% 10%, rgba(34,197,94,.20), transparent 55%),
+        linear-gradient(180deg, #050714, #070a14 40%, #050714);
+      color: var(--text);
+      padding: 18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+      display: grid;
+      place-items: start center;
     }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 16px;
+
+    .wrap{
+      width: min(520px, 100%);
+      margin-top: 10px;
     }
-    button {
+
+    .top{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .title{
+      line-height: 1.05;
+    }
+    .title h1{
+      margin:0;
+      font-size: 1.55rem;
+      letter-spacing: -0.02em;
+    }
+    .title p{
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .chip{
+      display:flex; align-items:center; gap:8px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .9rem;
+      user-select:none;
+      backdrop-filter: blur(10px);
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: rgba(34,197,94,.9);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.15);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .section{
+      padding: 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .section:first-child{ border-top: none; }
+
+    label{
+      display:block;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .amountRow{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 14px;
+    }
+
+    .amountBox{
+      flex: 1;
+      padding: 14px 14px 12px 14px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .amountDisplay{
+      font-size: 2.05rem;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      margin:0;
+    }
+
+    .amountHint{
+      margin: 6px 0 0 0;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .amountInput{
+      position:absolute;
+      left:-9999px; top:-9999px;
+      opacity: 0;
+    }
+
+    .kbdBtn{
+      width: 112px;
+      padding: 14px 12px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(124,58,237,.30), rgba(124,58,237,.12));
+      border: 1px solid rgba(124,58,237,.35);
+      color: rgba(255,255,255,.92);
+      font-weight: 650;
+      letter-spacing: .01em;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 10px 25px rgba(124,58,237,.18);
+    }
+    .kbdBtn:active{ transform: translateY(1px); }
+
+    .field{
       width: 100%;
-      padding: 16px;
-      margin: 8px 0;
-      font-size: 1rem;
-      border: none;
-      border-radius: 12px;
-      background: #2563eb;
-      color: white;
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--text);
+      outline: none;
+      font-size: 1.02rem;
     }
-    textarea {
-      width: 100%;
-      min-height: 80px;
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
+    .field:focus{
+      border-color: rgba(124,58,237,.55);
+      box-shadow: 0 0 0 4px rgba(124,58,237,.18);
     }
-    .status {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      opacity: 0.8;
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .actions{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .btn{
+      flex: 1;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 650;
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btnPrimary{
+      background: linear-gradient(180deg, rgba(34,197,94,.34), rgba(34,197,94,.14));
+      border-color: rgba(34,197,94,.40);
+      box-shadow: 0 10px 24px rgba(34,197,94,.14);
+    }
+
+    .btnGhost{
+      flex: 0;
+      width: 92px;
+    }
+
+    .status{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: .92rem;
+      min-height: 1.2em;
+    }
+
+    .status.ok{ color: rgba(34,197,94,.95); }
+    .status.err{ color: rgba(239,68,68,.95); }
+
+    .row{
+      display:flex;
+      gap: 12px;
+    }
+
+    .pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: .9rem;
     }
   </style>
 </head>
+
 <body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title">
+        <h1>Budget Log</h1>
+        <p>Fast entry, clean data to n8n.</p>
+      </div>
+      <div class="chip"><span class="dot"></span><span>Ready</span></div>
+    </div>
 
-<h1>Quick Log</h1>
+    <div class="card">
+      <div class="section">
+        <label>Amount</label>
+        <div class="amountRow">
+          <div class="amountBox" id="amountBox" role="button" aria-label="Tap to enter amount">
+            <p class="amountDisplay" id="amountDisplay">0,00 €</p>
+            <p class="amountHint" id="amountHint">Type digits: 3142 → 31,42 €</p>
+          </div>
 
-<textarea id="note" placeholder="Optional note…"></textarea>
+          <button class="kbdBtn" id="openKbdBtn" type="button">Enter</button>
+          <input
+            class="amountInput"
+            id="amountDigits"
+            inputmode="numeric"
+            autocomplete="off"
+            pattern="[0-9]*"
+            aria-label="Amount digits"
+          />
+        </div>
 
-<button onclick="send('mood')">Log Mood</button>
-<button onclick="send('idea')">Log Idea</button>
-<button onclick="send('task')">Log Task</button>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="pill" id="digitsPill">digits: 0</span>
+          <span class="pill" id="centsPill">cents: 0</span>
+        </div>
+      </div>
 
-<div class="status" id="status"></div>
+      <div class="section">
+        <div class="grid">
+          <div>
+            <label for="account">Account</label>
+            <select id="account" class="field">
+              <option value="miles_and_more">Miles &amp; More</option>
+              <option value="paypal">PayPal</option>
+              <option value="comdirect_giro">Comdirect Giro</option>
+              <option value="other">Other (specify)</option>
+            </select>
+          </div>
+
+          <div id="otherWrap" style="display:none;">
+            <label for="otherAccount">Other account name</label>
+            <input id="otherAccount" class="field" type="text" placeholder="e.g., Cash, N26, Revolut…" />
+          </div>
+
+          <div>
+            <label for="note">Note (optional)</label>
+            <input id="note" class="field" type="text" placeholder="e.g., groceries, coffee, subscription…" />
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:16px;">
+          <button class="btn btnGhost" id="clearBtn" type="button">Clear</button>
+          <button class="btn btnPrimary" id="sendBtn" type="button">Save</button>
+        </div>
+
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px; color:var(--muted); font-size:.9rem;">
+      Tip: Add this page to your home screen to run it like an app.
+    </div>
+  </div>
 
 <script>
-const WEBHOOK_URL = "https://chonsta.app.n8n.cloud/webhook/log";
+  // 1) Set your n8n Production Webhook URL here
+  const WEBHOOK_URL = "https://chonsta.app.n8n.cloud/webhook/log";
 
-async function send(type) {
-  const note = document.getElementById("note").value;
+  // Optional: shared secret (recommended if your webhook is public)
+  // const API_KEY = "CHANGE_ME";
+  const API_KEY = "";
 
-  document.getElementById("status").textContent = "Sending…";
+  const els = {
+    amountDigits: document.getElementById("amountDigits"),
+    amountDisplay: document.getElementById("amountDisplay"),
+    digitsPill: document.getElementById("digitsPill"),
+    centsPill: document.getElementById("centsPill"),
+    openKbdBtn: document.getElementById("openKbdBtn"),
+    amountBox: document.getElementById("amountBox"),
+    account: document.getElementById("account"),
+    otherWrap: document.getElementById("otherWrap"),
+    otherAccount: document.getElementById("otherAccount"),
+    note: document.getElementById("note"),
+    sendBtn: document.getElementById("sendBtn"),
+    clearBtn: document.getElementById("clearBtn"),
+    status: document.getElementById("status"),
+  };
 
-  try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        type,
-        note,
-        source: "pwa"
-      })
-    });
-
-    if (!res.ok) throw new Error("Request failed");
-
-    document.getElementById("status").textContent = "Saved ✔";
-    document.getElementById("note").value = "";
-  } catch (e) {
-    document.getElementById("status").textContent = "Error ❌";
+  // Keep digits only; interpret as cents (e.g. "3142" => 31.42)
+  function normalizeDigits(s){
+    return (s || "").replace(/[^\d]/g, "").replace(/^0+(?=\d)/, ""); // strip non-digits + leading zeros
   }
-}
-</script>
 
+  function digitsToCents(digits){
+    const n = digits ? parseInt(digits, 10) : 0;
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function formatEURFromCents(cents){
+    const value = (cents / 100);
+    // Use de-DE for comma decimal and currency spacing style
+    return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+  }
+
+  function refreshAmountUI(){
+    const digits = normalizeDigits(els.amountDigits.value);
+    els.amountDigits.value = digits;
+    const cents = digitsToCents(digits);
+
+    els.amountDisplay.textContent = formatEURFromCents(cents);
+    els.digitsPill.textContent = "digits: " + (digits || "0");
+    els.centsPill.textContent = "cents: " + cents;
+  }
+
+  function openKeyboard(){
+    // Make input briefly visible to trigger keyboard reliably on mobile
+    els.amountDigits.style.position = "fixed";
+    els.amountDigits.style.left = "16px";
+    els.amountDigits.style.bottom = "16px";
+    els.amountDigits.style.width = "1px";
+    els.amountDigits.style.height = "1px";
+    els.amountDigits.style.opacity = "0.01";
+    els.amountDigits.focus();
+    els.amountDigits.click();
+  }
+
+  function setStatus(text, kind){
+    els.status.textContent = text || "";
+    els.status.className = "status" + (kind ? (" " + kind) : "");
+  }
+
+  // Account conditional
+  function refreshAccountUI(){
+    const isOther = els.account.value === "other";
+    els.otherWrap.style.display = isOther ? "block" : "none";
+    if (!isOther) els.otherAccount.value = "";
+  }
+
+  async function send(){
+    const digits = normalizeDigits(els.amountDigits.value);
+    const cents = digitsToCents(digits);
+    if (cents <= 0){
+      setStatus("Enter an amount greater than 0.", "err");
+      openKeyboard();
+      return;
+    }
+
+    const accountValue = els.account.value;
+    const accountLabel = (accountValue === "other")
+      ? (els.otherAccount.value || "").trim()
+      : accountValue;
+
+    if (accountValue === "other" && !accountLabel){
+      setStatus("Please specify the account name.", "err");
+      els.otherAccount.focus();
+      return;
+    }
+
+    const payload = {
+      type: "budget_entry",
+      timestamp: new Date().toISOString(),
+      amount_cents: cents,
+      amount_eur: (cents / 100),
+      currency: "EUR",
+      account: accountLabel,
+      note: (els.note.value || "").trim(),
+      source: "pwa_github_pages"
+    };
+
+    setStatus("Saving…", "");
+
+    try{
+      const headers = { "Content-Type": "application/json" };
+      if (API_KEY) headers["X-API-Key"] = API_KEY;
+
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      setStatus("Saved.", "ok");
+
+      // Clear form after save
+      els.note.value = "";
+      if (els.account.value === "other") els.otherAccount.value = "";
+      els.amountDigits.value = "";
+      refreshAmountUI();
+    } catch (e){
+      setStatus("Error saving. Check webhook URL / n8n active.", "err");
+    }
+  }
+
+  function clearAll(){
+    els.amountDigits.value = "";
+    els.note.value = "";
+    els.account.value = "miles_and_more";
+    els.otherAccount.value = "";
+    refreshAccountUI();
+    refreshAmountUI();
+    setStatus("", "");
+    openKeyboard();
+  }
+
+  // Wire up events
+  els.amountDigits.addEventListener("input", refreshAmountUI);
+  els.openKbdBtn.addEventListener("click", openKeyboard);
+  els.amountBox.addEventListener("click", openKeyboard);
+
+  els.account.addEventListener("change", refreshAccountUI);
+  els.sendBtn.addEventListener("click", send);
+  els.clearBtn.addEventListener("click", clearAll);
+
+  // Enter key on note submits
+  els.note.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") send();
+  });
+
+  // Init
+  refreshAccountUI();
+  refreshAmountUI();
+  // Open keyboard on first load for fast entry (comment out if you dislike it)
+  setTimeout(openKeyboard, 350);
+</script>
 </body>
 </html>
