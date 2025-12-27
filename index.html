@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quick Log</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      margin: 8px 0;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      background: #2563eb;
+      color: white;
+    }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Quick Log</h1>
+
+<textarea id="note" placeholder="Optional note…"></textarea>
+
+<button onclick="send('mood')">Log Mood</button>
+<button onclick="send('idea')">Log Idea</button>
+<button onclick="send('task')">Log Task</button>
+
+<div class="status" id="status"></div>
+
+<script>
+const WEBHOOK_URL = "https://chonsta.app.n8n.cloud/webhook/log";
+
+async function send(type) {
+  const note = document.getElementById("note").value;
+
+  document.getElementById("status").textContent = "Sending…";
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type,
+        note,
+        source: "pwa"
+      })
+    });
+
+    if (!res.ok) throw new Error("Request failed");
+
+    document.getElementById("status").textContent = "Saved ✔";
+    document.getElementById("note").value = "";
+  } catch (e) {
+    document.getElementById("status").textContent = "Error ❌";
+  }
+}
+</script>
+
+</body>
+</html>
